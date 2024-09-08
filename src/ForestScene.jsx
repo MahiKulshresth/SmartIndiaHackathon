@@ -80,13 +80,65 @@ const ForestScene = () => {
       const tree = createTree(x, z);
       scene.add(tree);
     }
+ // Create torso (main body)
+const characterGeometry = new THREE.BoxGeometry(0.75, 1, 0.5);
+const characterMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+const character = new THREE.Mesh(characterGeometry, characterMaterial);
+character.position.y = 0.5; // Position torso so its bottom sits on the ground
 
-    // Create character
-    const characterGeometry = new THREE.BoxGeometry(0.5, 1, 0.5);
-    const characterMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-    const character = new THREE.Mesh(characterGeometry, characterMaterial);
-    character.position.y = 0.5;
-    scene.add(character);
+// Create head (sphere) and add it on top of the torso
+const headGeometry = new THREE.SphereGeometry(0.25, 32, 32); // Radius 0.25 units
+const headMaterial = new THREE.MeshPhongMaterial({ color: 0xffcc00 });
+const head = new THREE.Mesh(headGeometry, headMaterial);
+head.position.y = 0.75; // Position head on top of the torso
+
+// Create left leg and add it below the torso
+const legGeometry = new THREE.BoxGeometry(0.2, 0.5, 0.2); // Narrower rectangle for the leg
+const legMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+leftLeg.position.set(-0.15, -0.75, 0); // Position left leg slightly left and below the torso
+
+// Create right leg and add it below the torso
+const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+rightLeg.position.set(0.15, -0.75, 0); // Position right leg slightly right and below the torso
+
+// Group all parts together
+const characterGroup = new THREE.Group();
+characterGroup.add(character); // Add torso
+character.add(head); // Add head to torso
+character.add(leftLeg); // Add left leg to torso
+character.add(rightLeg); // Add right leg to torso
+
+// Add the group to the scene so it moves as a single entity
+scene.add(characterGroup);
+
+// To move the entire character, move characterGroup, not individual parts
+characterGroup.position.set(0, 0.5, 0); // Adjust this position as needed
+
+// Example movement code: Moving characterGroup using arrow keys
+// Example of renaming the function to avoid conflict
+function handleCharacterMovement(event) {
+  const moveSpeed = 0.1; // Adjust speed as necessary
+  switch (event.key) {
+      case 'ArrowUp':
+          characterGroup.position.z -= moveSpeed;
+          break;
+      case 'ArrowDown':
+          characterGroup.position.z += moveSpeed;
+          break;
+      case 'ArrowLeft':
+          characterGroup.position.x -= moveSpeed;
+          break;
+      case 'ArrowRight':
+          characterGroup.position.x += moveSpeed;
+          break;
+  }
+}
+
+// Ensure the event listener uses the renamed function
+window.addEventListener('keydown', handleCharacterMovement);
+
+ 
 
     // Add ambient light
     const ambientLight = new THREE.AmbientLight(0x404040);
